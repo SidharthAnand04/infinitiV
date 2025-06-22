@@ -122,6 +122,11 @@ class ScriptGenerator:
             with open(analysis_path, 'w', encoding='utf-8') as f:
                 json.dump(script_analysis, f, indent=2, ensure_ascii=False)
             
+            # Save the main script file as well (ensure_ascii=False)
+            script_path = os.path.join(scripts_dir, "script.json")
+            with open(script_path, 'w', encoding='utf-8') as f:
+                json.dump(script, f, indent=2, ensure_ascii=False)
+            
             logger.info(f"Script files saved to {scripts_dir}")
             
         except Exception as e:

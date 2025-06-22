@@ -1,5 +1,6 @@
 test/*
 results/*
+voice_gen/audio/*
 frontend/node_modules/*
 .env
 .*
