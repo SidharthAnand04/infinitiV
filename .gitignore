@@ -5,6 +5,7 @@ renpy_projects/*
 rendered_scenes/*
 test_results/*
 frontend/node_modules/*
+archive/*
 .env
 .*
 __pycache__/*
