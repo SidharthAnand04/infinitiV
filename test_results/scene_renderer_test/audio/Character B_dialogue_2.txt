@@ -1,0 +1,4 @@
+Mock Audio File
+Character: Character B
+Text: Don't play coy. We both know you were involved. Just tell me what happened.
+Block ID: dialogue_2

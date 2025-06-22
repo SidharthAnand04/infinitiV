@@ -1,0 +1,4 @@
+Mock Audio File
+Character: Character A
+Text: I still don't understand why you brought me here. This place gives me the creeps.
+Block ID: dialogue_1

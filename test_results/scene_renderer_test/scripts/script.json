@@ -1,0 +1,440 @@
+[
+  {
+    "id": "scene_start",
+    "type": "scene",
+    "setting": "Unknown location",
+    "description": "Scene begins in Unknown location with a neutral atmosphere."
+  },
+  {
+    "id": "action_1",
+    "type": "environment",
+    "timing": {
+      "sequence": 1,
+      "relative_to": "scene_start",
+      "when": "before",
+      "delay": "immediate"
+    },
+    "description": "Rain streaks down the grimy windows of the warehouse, reflecting the weak light from a single bare bulb hanging precariously from the ceiling. Water drips steadily from the roof, creating a rhythmic, unsettling sound.",
+    "character": null,
+    "duration": {
+      "length": "normal",
+      "seconds": 3
+    },
+    "visual_elements": {
+      "focus": "establishing oppressive atmosphere",
+      "movement_type": "lighting_effect",
+      "direction": "overhead",
+      "intensity": "dramatic",
+      "style": "decayed"
+    },
+    "environmental_impact": {
+      "lighting_change": "subtle",
+      "background_elements": [
+        "rain",
+        "windows",
+        "ceiling",
+        "bulb"
+      ],
+      "atmosphere_shift": "tension_increase",
+      "sound_implications": [
+        "drip_sound",
+        "distant_thunder"
+      ]
+    },
+    "emotional_purpose": "establish a sense of unease and isolation",
+    "camera_suggestion": {
+      "shot_type": "establishing",
+      "angle": "high",
+      "movement": "slow_pan"
+    }
+  },
+  {
+    "id": "dialogue_1",
+    "type": "dialogue",
+    "character": "Character A",
+    "text": "I still don't understand why you brought me here. This place gives me the creeps.",
+    "emotion": "unease",
+    "traits": {
+      "gender": "female",
+      "age_range": "young_adult",
+      "voice_style": "cautious",
+      "accent": "neutral",
+      "speech_pattern": "slightly hesitant",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
+    },
+    "timing": {
+      "pace": "normal",
+      "pause_before": "brief",
+      "pause_after": "none",
+      "emphasis": [
+        "here"
+      ],
+      "volume": "quiet"
+    },
+    "context": {
+      "responds_to": "scene_opening",
+      "triggers": "establishing character's initial reaction",
+      "subtext": "expressing apprehension and distrust",
+      "relationship_dynamic": "initial tension"
+    },
+    "audio": "audio/Character A_dialogue_1.mp3"
+  },
+  {
+    "id": "dialogue_2",
+    "type": "dialogue",
+    "character": "Character B",
+    "text": "Don't play coy. We both know you were involved. Just tell me what happened.",
+    "emotion": "firm_determination",
+    "traits": {
+      "gender": "male",
+      "age_range": "adult",
+      "voice_style": "direct",
+      "accent": "neutral",
+      "speech_pattern": "confident",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
+    },
+    "timing": {
+      "pace": "normal",
+      "pause_before": "none",
+      "pause_after": "brief",
+      "emphasis": [
+        "involved",
+        "what happened"
+      ],
+      "volume": "normal"
+    },
+    "context": {
+      "responds_to": "dialogue_1",
+      "triggers": "direct accusation, escalating conflict",
+      "subtext": "seeking information, asserting control",
+      "relationship_dynamic": "power dynamic shift"
+    },
+    "audio": "audio/Character B_dialogue_2.mp3"
+  },
+  {
+    "id": "action_2",
+    "type": "movement",
+    "timing": {
+      "sequence": 2,
+      "relative_to": "dialogue_1",
+      "when": "during",
+      "delay": "immediate"
+    },
+    "description": "Character A (Detective) slowly enters the warehouse, head down, scanning the room with a wary expression.  Her footsteps echo slightly on the concrete floor.",
+    "character": "Character A",
+    "duration": {
+      "length": "normal",
+      "seconds": 4
+    },
+    "visual_elements": {
+      "focus": "detective's cautious approach",
+      "movement_type": "walking",
+      "direction": "toward",
+      "intensity": "moderate",
+      "style": "nervous"
+    },
+    "environmental_impact": {
+      "lighting_change": "none",
+      "background_elements": [
+        "shadows",
+        "dust",
+        "debris"
+      ],
+      "atmosphere_shift": "none",
+      "sound_implications": [
+        "footsteps",
+        "distant_rain"
+      ]
+    },
+    "emotional_purpose": "reflecting apprehension and uncertainty",
+    "camera_suggestion": {
+      "shot_type": "medium",
+      "angle": "eye_level",
+      "movement": "follow"
+    }
+  },
+  {
+    "id": "dialogue_3",
+    "type": "dialogue",
+    "character": "Character A",
+    "text": "I told you, I was at home. Alone. It's not a secret.",
+    "emotion": "defensive",
+    "traits": {
+      "gender": "female",
+      "age_range": "young_adult",
+      "voice_style": "firm",
+      "accent": "neutral",
+      "speech_pattern": "slightly agitated",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
+    },
+    "timing": {
+      "pace": "normal",
+      "pause_before": "brief",
+      "pause_after": "none",
+      "emphasis": [
+        "told",
+        "alone"
+      ],
+      "volume": "normal"
+    },
+    "context": {
+      "responds_to": "dialogue_2",
+      "triggers": "denial, escalating conflict",
+      "subtext": "attempting to deflect suspicion",
+      "relationship_dynamic": "increasing hostility"
+    },
+    "audio": "audio/Character A_dialogue_3.mp3"
+  },
+  {
+    "id": "dialogue_4",
+    "type": "dialogue",
+    "character": "Character B",
+    "text": "Don't insult my intelligence. The security footage doesn't lie. You were here.",
+    "emotion": "disbelief",
+    "traits": {
+      "gender": "male",
+      "age_range": "adult",
+      "voice_style": "cold",
+      "accent": "neutral",
+      "speech_pattern": "measured",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
+    },
+    "timing": {
+      "pace": "normal",
+      "pause_before": "brief",
+      "pause_after": "long",
+      "emphasis": [
+        "security footage",
+        "here"
+      ],
+      "volume": "normal"
+    },
+    "context": {
+      "responds_to": "dialogue_3",
+      "triggers": "presenting irrefutable evidence",
+      "subtext": "undermining character's denial, asserting dominance",
+      "relationship_dynamic": "power imbalance reinforced"
+    },
+    "audio": "audio/Character B_dialogue_4.mp3"
+  },
+  {
+    "id": "action_3",
+    "type": "gesture",
+    "timing": {
+      "sequence": 3,
+      "relative_to": "dialogue_1",
+      "when": "during",
+      "delay": "brief"
+    },
+    "description": "Character A subtly clutches her jacket, a nervous habit.",
+    "character": "Character A",
+    "duration": {
+      "length": "brief",
+      "seconds": 1
+    },
+    "visual_elements": {
+      "focus": "nervousness",
+      "movement_type": "gesture",
+      "direction": "internal",
+      "intensity": "subtle",
+      "style": "anxious"
+    },
+    "environmental_impact": {
+      "lighting_change": "none",
+      "background_elements": [
+        "jacket"
+      ],
+      "atmosphere_shift": "none",
+      "sound_implications": "none"
+    },
+    "emotional_purpose": "reinforce character's unease",
+    "camera_suggestion": {
+      "shot_type": "close_up",
+      "angle": "slightly_high",
+      "movement": "static"
+    }
+  },
+  {
+    "id": "dialogue_5",
+    "type": "dialogue",
+    "character": "Character A",
+    "text": "That... that was weeks ago. It doesn't matter anymore.",
+    "emotion": "desperation",
+    "traits": {
+      "gender": "female",
+      "age_range": "young_adult",
+      "voice_style": "weak",
+      "accent": "neutral",
+      "speech_pattern": "hesitant",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
+    },
+    "timing": {
+      "pace": "slow",
+      "pause_before": "long",
+      "pause_after": "brief",
+      "emphasis": [
+        "matter"
+      ],
+      "volume": "whisper"
+    },
+    "context": {
+      "responds_to": "dialogue_4",
+      "triggers": "attempting to minimize involvement",
+      "subtext": "revealing a possible attempt to cover up the past",
+      "relationship_dynamic": "vulnerability exposed"
+    },
+    "audio": "audio/Character A_dialogue_5.mp3"
+  },
+  {
+    "id": "dialogue_6",
+    "type": "dialogue",
+    "character": "Character B",
+    "text": "It does matter. Every detail. And I intend to hear them.",
+    "emotion": "intense_focus",
+    "traits": {
+      "gender": "male",
+      "age_range": "adult",
+      "voice_style": "authoritative",
+      "accent": "neutral",
+      "speech_pattern": "firm",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
+    },
+    "timing": {
+      "pace": "normal",
+      "pause_before": "none",
+      "pause_after": "none",
+      "emphasis": [
+        "detail",
+        "hear"
+      ],
+      "volume": "normal"
+    },
+    "context": {
+      "responds_to": "dialogue_5",
+      "triggers": "determination to uncover the truth",
+      "subtext": "threat of further interrogation, increasing pressure",
+      "relationship_dynamic": "escalating conflict, no resolution in sight"
+    },
+    "audio": "audio/Character B_dialogue_6.mp3"
+  },
+  {
+    "id": "action_4",
+    "type": "movement",
+    "timing": {
+      "sequence": 4,
+      "relative_to": "dialogue_2",
+      "when": "during",
+      "delay": "immediate"
+    },
+    "description": "Character B (Suspect) shifts uncomfortably in his chair, avoiding eye contact. He fidgets with his hands.",
+    "character": "Character B",
+    "duration": {
+      "length": "normal",
+      "seconds": 3
+    },
+    "visual_elements": {
+      "focus": "defensive body language",
+      "movement_type": "shifting",
+      "direction": "multiple",
+      "intensity": "moderate",
+      "style": "nervous"
+    },
+    "environmental_impact": {
+      "lighting_change": "none",
+      "background_elements": [
+        "chair",
+        "table"
+      ],
+      "atmosphere_shift": "none",
+      "sound_implications": [
+        "fidgeting_sounds"
+      ]
+    },
+    "emotional_purpose": "show nervousness and discomfort",
+    "camera_suggestion": {
+      "shot_type": "medium",
+      "angle": "eye_level",
+      "movement": "follow"
+    }
+  },
+  {
+    "id": "action_5",
+    "type": "visual_effect",
+    "timing": {
+      "sequence": 5,
+      "relative_to": "dialogue_3",
+      "when": "during",
+      "delay": "brief"
+    },
+    "description": "A brief, distorted flash of light momentarily illuminates the room, highlighting the grime and decay.",
+    "character": null,
+    "duration": {
+      "length": "brief",
+      "seconds": 1
+    },
+    "visual_elements": {
+      "focus": "emphasizing the unsettling environment",
+      "movement_type": "visual_effect",
+      "direction": "overhead",
+      "intensity": "dramatic",
+      "style": "distorted"
+    },
+    "environmental_impact": {
+      "lighting_change": "dramatic",
+      "background_elements": [
+        "shadows",
+        "dust"
+      ],
+      "atmosphere_shift": "tension_increase",
+      "sound_implications": "none"
+    },
+    "emotional_purpose": "amplify the sense of unease and mystery",
+    "camera_suggestion": {
+      "shot_type": "medium",
+      "angle": "eye_level",
+      "movement": "static"
+    }
+  },
+  {
+    "id": "action_6",
+    "type": "environment",
+    "timing": {
+      "sequence": 6,
+      "relative_to": "dialogue_4",
+      "when": "during",
+      "delay": "extended"
+    },
+    "description": "The sound of rain intensifies, accompanied by a low rumble of thunder.  A single drop of water lands on the table, creating a small ripple.",
+    "character": null,
+    "duration": {
+      "length": "normal",
+      "seconds": 4
+    },
+    "visual_elements": {
+      "focus": "heightening the atmosphere",
+      "movement_type": "environmental_sound",
+      "direction": "ambient",
+      "intensity": "moderate",
+      "style": "realistic"
+    },
+    "environmental_impact": {
+      "lighting_change": "none",
+      "background_elements": [
+        "rain",
+        "table",
+        "water_drop"
+      ],
+      "atmosphere_shift": "tension_increase",
+      "sound_implications": [
+        "thunder",
+        "rain_sound"
+      ]
+    },
+    "emotional_purpose": "build suspense and create a sense of foreboding",
+    "camera_suggestion": {
+      "shot_type": "medium",
+      "angle": "eye_level",
+      "movement": "static"
+    }
+  }
+]

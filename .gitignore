@@ -1,6 +1,8 @@
 test/*
 results/*
 voice_gen/audio/*
+renpy_projects/*
+rendered_scenes/*
 frontend/node_modules/*
 .env
 .*
