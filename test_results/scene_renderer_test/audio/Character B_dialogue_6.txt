@@ -1,4 +1,0 @@
-Mock Audio File
-Character: Character B
-Text: It does matter. Every detail. And I intend to hear them.
-Block ID: dialogue_6

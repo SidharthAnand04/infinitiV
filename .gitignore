@@ -3,6 +3,7 @@ results/*
 voice_gen/audio/*
 renpy_projects/*
 rendered_scenes/*
+test_results/*
 frontend/node_modules/*
 .env
 .*

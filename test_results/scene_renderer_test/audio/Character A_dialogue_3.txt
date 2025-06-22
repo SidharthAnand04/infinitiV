@@ -1,4 +1,0 @@
-Mock Audio File
-Character: Character A
-Text: I told you, I was at home. Alone. It's not a secret.
-Block ID: dialogue_3

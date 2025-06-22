@@ -1,4 +1,0 @@
-Mock Audio File
-Character: Character A
-Text: That... that was weeks ago. It doesn't matter anymore.
-Block ID: dialogue_5

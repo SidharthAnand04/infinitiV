@@ -520,7 +520,7 @@ class SceneRenderer:
                 "playable": True,
                 "preview_url": f"file://{project_path}/index.html"
             }
-              except Exception as e:
+        except Exception as e:
             logger.error(f"Ren'Py SDK build failed: {str(e)}")
             return self._create_html_preview(project_path, project_name)
 

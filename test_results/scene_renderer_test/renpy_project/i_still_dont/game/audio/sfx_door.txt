@@ -1,2 +1,0 @@
-Door sound effect placeholder
-This is a placeholder. Replace with actual audio file for full functionality.

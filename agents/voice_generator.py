@@ -19,6 +19,10 @@ class VoiceGenerator:
     """Voice generation agent using ElevenLabs API"""
     
     def __init__(self):
+        # Initialize caches first
+        self.audio_cache = {}  # Cache for generated audio files
+        self.voice_cache = {}  # Cache for created voices (character -> voice_id)
+        
         # Initialize ElevenLabs client if available
         self.elevenlabs_client = None
         self.elevenlabs_key = None
@@ -35,12 +39,12 @@ class VoiceGenerator:
         else:
             logger.warning("ElevenLabs library not available")
         
+        # Clean up any existing custom voices (only after caches are initialized)
+        self.delete_all_custom_voices()
+
         # Vapi fallback
         self.vapi_api_key = os.getenv('VAPI_API_KEY')
         self.base_url = "https://api.vapi.ai"
-          # Caching
-        self.audio_cache = {}  # Cache for generated audio files
-        self.voice_cache = {}  # Cache for created voices (character -> voice_id)
         
         if not self.elevenlabs_client and not self.vapi_api_key:
             logger.warning("No voice APIs configured, voice generation will be simulated")
@@ -331,9 +335,11 @@ class VoiceGenerator:
                     logger.info(f"🗑️ Deleting voice: {voice.name} ({voice.voice_id})")
                     self.elevenlabs_client.voices.delete(voice_id=voice.voice_id)
             
-            # Clear voice cache
-            self.voice_cache.clear()
-            logger.info("All custom voices deleted")
+            if not voices.voices:
+                logger.info("No custom voices to delete")
+            else:
+                logger.info(f"Deleted {len(voices.voices)} custom voices")
+                self.voice_cache.clear()
             
         except Exception as e:
             logger.error(f"Error deleting custom voices: {str(e)}")

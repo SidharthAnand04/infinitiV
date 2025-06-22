@@ -1,2 +1,0 @@
-Background placeholder: Street background
-Replace with actual background image for full functionality.
