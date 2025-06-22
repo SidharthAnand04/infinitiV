@@ -1,12 +1,15 @@
 import os
 import json
-import pprint
+from pprint import pprint
 import logging
 from typing import List, Dict, Optional
 from datetime import datetime
-from prompts.script_generator_prompts import (
+from .prompts.script_generator_prompts import (
     INTERPRET_PROMPT_SYSTEM,
+    DIALOGUE_GENERATION_SYSTEM,
+    ACTION_GENERATION_SYSTEM
 )
+
 
 # Try to import AI libraries
 try:
@@ -22,55 +25,48 @@ except ImportError:
     GEMINI_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
 STORY_MODEL = "llama-3.1-8b-instant"
+GOOGLE_MODEL = "gemma-3-4b-it"
 
 
 class ScriptGenerator:
     """Agent pipeline for generating structured scripts from prompts"""
     
     def __init__(self):
+        
         # Initialize Groq client if available
         if GROQ_AVAILABLE:
             groq_key = os.getenv('GROQ_API_KEY')
-
             if groq_key:
                 try:
                     # Initialize Groq with minimal parameters to avoid version issues
                     self.groq_client = Groq(api_key=groq_key)
-                    
                     logger.info("Groq client initialized successfully")
                 except Exception as e:
                     logger.error(f"Failed to initialize Groq client: {str(e)}")
-                    # Try alternative initialization
-                    try:
-                        # Force reimport and try again
-                        import importlib
-                        groq_module = importlib.import_module('groq')
-                        self.groq_client = groq_module.Groq(api_key=groq_key)
-                        logger.info("Groq client initialized with alternative method")
-                    except Exception as e2:
-                        logger.error(f"Alternative Groq initialization also failed: {str(e2)}")
-                        self.groq_client = None
+                    self.groq_client = None
             else:
                 logger.warning("GROQ_API_KEY not found in environment variables")
         
-        self.gemini_model = None
         if GEMINI_AVAILABLE:
             gemini_key = os.getenv('GEMINI_API_KEY')
+           
             if gemini_key and gemini_key != 'your_gemini_api_key_here':
                 try:
                     genai.configure(api_key=gemini_key)
-                    self.gemini_model = genai.GenerativeModel('gemini-pro')
+                    self.gemini_model = genai.GenerativeModel(GOOGLE_MODEL)
                     logger.info("Gemini model initialized successfully")
                 except Exception as e:
                     logger.error(f"Failed to initialize Gemini: {str(e)}")
                     self.gemini_model = None
             else:
                 logger.warning("GEMINI_API_KEY not configured")
+        self.groq_client = None
         
-        if not self.groq_client and not self.gemini_model:
+        if not (GROQ_AVAILABLE or GEMINI_AVAILABLE):
             logger.warning("No AI APIs configured, will use fallback script generation")
-    
+
     def generate_script(self, prompt: str, reference_materials: List[Dict] = None, project_dir: str = None) -> List[Dict]:
         """
         Generate a structured script using the agent pipeline
@@ -80,12 +76,14 @@ class ScriptGenerator:
             
             # Step 1: Interpret the prompt
             scene_plan = self._interpret_prompt(prompt, reference_materials)
+
             
             # Step 2: Generate dialogue
             dialogue = self._generate_dialogue(scene_plan)
-            
+             
             # Step 3: Generate actions
             actions = self._generate_actions(scene_plan, dialogue)
+        
             
             # Step 4: Structure as JSON
             structured_script = self._structure_as_json(dialogue, actions, scene_plan)
@@ -117,9 +115,7 @@ class ScriptGenerator:
                 "total_blocks": len(script),
                 "dialogue_blocks": len([b for b in script if b.get('type') == 'dialogue']),
                 "action_blocks": len([b for b in script if b.get('type') == 'action']),
-                "characters": list(set([b.get('character') for b in script if b.get('character')])),
-                "estimated_duration_minutes": len(script) * 0.05,  # ~3 seconds per block
-                "created_at": datetime.now().isoformat()
+                "characters": list(set([b.get('character') for b in script if b.get('character')]))
             }
             
             analysis_path = os.path.join(scripts_dir, "script_analysis.json")
@@ -159,8 +155,8 @@ class ScriptGenerator:
                     result = response.text
                 
                 try:
-                    # pprint.pprint(json.loads(result))  # Pretty print the JSON for debugging
-
+                    # pprint(json.loads(result))  # Pretty print the JSON for debugging
+                    pprint(json.loads(result))  # Pretty print the JSON for debugging
                     return json.loads(result)
                 except:
                     # If JSON parsing fails, create a structured response
@@ -186,57 +182,66 @@ class ScriptGenerator:
     
     def _generate_dialogue(self, scene_plan: Dict) -> List[Dict]:
         """Generate dialogue based on the scene plan"""
-        
         if self.groq_client or self.gemini_model:
-            system_prompt = """
-            You are a dialogue generation agent. Create natural dialogue between characters based on the scene plan.
+            system_prompt = DIALOGUE_GENERATION_SYSTEM
+        
+        user_prompt = f"Scene plan: {json.dumps(scene_plan, indent=2)}"
+        try:
+            if self.groq_client:
+                response = self.groq_client.chat.completions.create(
+                    model=STORY_MODEL,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.8,
+                    max_tokens=1500
+                )
+                result = response.choices[0].message.content
+            elif self.gemini_model:
+                response = self.gemini_model.generate_content(f"{system_prompt}\n\n{user_prompt}")
+                result = response.text
             
-            Return as a JSON array of dialogue objects with:
-            - id: unique identifier
-            - type: "dialogue"
-            - character: character name
-            - text: what they say
-            - emotion: their emotional state
-            - traits: character traits (gender, age, style)
-            """
+            # Debug: Print the raw result
+            print("=== RAW DIALOGUE GENERATION RESULT ===")
+            print(f"Result type: {type(result)}")
+            print(f"Result length: {len(result) if result else 0}")
+            print(f"First 200 chars: {result[:200] if result else 'None'}")
+            print("=====================================")
             
-            user_prompt = f"Scene plan: {json.dumps(scene_plan, indent=2)}"
-            
+            # Check if result is empty or None
+            if not result or result.strip() == "":
+                logger.error("Empty response from AI service for dialogue generation")
+                return self._create_fallback_dialogue(scene_plan)
+        
             try:
-                if self.groq_client:
-                    response = self.groq_client.chat.completions.create(
-                        model=STORY_MODEL,
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt}
-                        ],
-                        temperature=0.8,
-                        max_tokens=1500
-                    )
-                    result = response.choices[0].message.content
-                elif self.gemini_model:
-                    response = self.gemini_model.generate_content(f"{system_prompt}\n\n{user_prompt}")
-                    result = response.text
+                # Try to parse JSON directly first
+                parsed_result = json.loads(result)
+                pprint(parsed_result)
+                return parsed_result
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON parsing failed for dialogue: {str(e)}")
+                logger.error(f"Raw result that failed to parse: {repr(result[:500])}")
                 
-                pprint.pprint(result)  
-
-                try:
-                    return json.loads(result)
-                except:
-                    # Create fallback dialogue structure
-                    return [
-                        {
-                            "id": "1",
-                            "type": "dialogue",
-                            "character": scene_plan.get("characters", ["Speaker"])[0],
-                            "text": result[:100] + "..." if len(result) > 100 else result,
-                            "emotion": "neutral",
-                            "traits": {"gender": "neutral", "age": "adult", "style": "conversational"}
-                        }
-                    ]
-                    
-            except Exception as e:
-                logger.error(f"Error in dialogue generation: {str(e)}")
+                # Try to extract JSON from markdown code blocks
+                if "```json" in result:
+                    try:
+                        json_start = result.find("```json") + 7
+                        json_end = result.find("```", json_start)
+                        if json_end > json_start:
+                            json_content = result[json_start:json_end].strip()
+                            print(f"Extracted JSON: {json_content[:200]}...")
+                            parsed_result = json.loads(json_content)
+                            pprint(parsed_result)
+                            return parsed_result
+                    except Exception as extract_error:
+                        logger.error(f"Failed to extract JSON from markdown: {str(extract_error)}")
+                
+                # If all parsing fails, create fallback
+                return self._create_fallback_dialogue(scene_plan)
+                
+        except Exception as e:
+            logger.error(f"Error in dialogue generation: {str(e)}")
         
         # Fallback dialogue
         characters = scene_plan.get("characters", ["Character A", "Character B"])
@@ -263,16 +268,7 @@ class ScriptGenerator:
         """Generate actions and visual descriptions"""
         
         if self.groq_client or self.gemini_model:
-            system_prompt = """
-            You are an action and layout agent. Based on the scene plan and dialogue, create:
-            1. Character actions and movements
-            2. Scene transitions
-            3. Visual descriptions
-            4. Background changes
-            
-            Actions should complement the dialogue and enhance the visual storytelling.
-            Return as a JSON array of action objects.
-            """
+            system_prompt = ACTION_GENERATION_SYSTEM
             
             user_prompt = f"""
             Scene plan: {json.dumps(scene_plan, indent=2)}
@@ -297,11 +293,43 @@ class ScriptGenerator:
                 elif self.gemini_model:
                     response = self.gemini_model.generate_content(f"{system_prompt}\n\n{user_prompt}")
                     result = response.text
+                  # Debug: Print the raw result
+                print("=== RAW ACTION GENERATION RESULT ===")
+                print(f"Result type: {type(result)}")
+                print(f"Result length: {len(result) if result else 0}")
+                print(f"First 200 chars: {result[:200] if result else 'None'}")
+                print("=====================================")
+                
+                # Check if result is empty or None
+                if not result or result.strip() == "":
+                    logger.error("Empty response from AI service for action generation")
+                    return self._create_fallback_actions(scene_plan)
                 
                 try:
-                    return json.loads(result)
-                except:
-                    return [{"id": "action_1", "type": "action", "description": result[:200]}]
+                    # Try to parse JSON directly first
+                    parsed_result = json.loads(result)
+                    pprint(parsed_result)
+                    return parsed_result
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON parsing failed for actions: {str(e)}")
+                    logger.error(f"Raw result that failed to parse: {repr(result[:500])}")
+                    
+                    # Try to extract JSON from markdown code blocks
+                    if "```json" in result:
+                        try:
+                            json_start = result.find("```json") + 7
+                            json_end = result.find("```", json_start)
+                            if json_end > json_start:
+                                json_content = result[json_start:json_end].strip()
+                                print(f"Extracted JSON from actions: {json_content[:200]}...")
+                                parsed_result = json.loads(json_content)
+                                pprint(parsed_result)
+                                return parsed_result
+                        except Exception as extract_error:
+                            logger.error(f"Failed to extract JSON from markdown in actions: {str(extract_error)}")
+                    
+                    # If all parsing fails, create fallback
+                    return self._create_fallback_actions(scene_plan)
                     
             except Exception as e:
                 logger.error(f"Error in action generation: {str(e)}")
@@ -309,7 +337,8 @@ class ScriptGenerator:
         # Fallback actions
         return [
             {"id": "action_1", "type": "action", "description": f"Scene opens in {scene_plan.get('setting', 'a location')}"},
-            {"id": "action_2", "type": "action", "description": "Characters begin their interaction"}
+            {"id": "action_2", "type": "action", "description": "Characters begin their interaction"},
+            {"id": "action_3", "type": "action", "description": f"The atmosphere is {scene_plan.get('tone', 'neutral')}"}
         ]
     
     def _structure_as_json(self, dialogue: List[Dict], actions: List[Dict], scene_plan: Dict) -> List[Dict]:
@@ -387,4 +416,34 @@ class ScriptGenerator:
                 "emotion": "conclusive",
                 "traits": {"gender": "neutral", "age": "adult", "style": "conversational"}
             }
+        ]
+    
+    def _create_fallback_dialogue(self, scene_plan: Dict) -> List[Dict]:
+        """Create fallback dialogue structure when AI parsing fails"""
+        characters = scene_plan.get("characters", ["Character A", "Character B"])
+        return [
+            {
+                "id": "1",
+                "type": "dialogue",
+                "character": characters[0],
+                "text": f"Hello! Let me tell you about {scene_plan.get('conflict', 'our situation')}.",
+                "emotion": "friendly",
+                "traits": {"gender": "neutral", "age": "adult", "style": "conversational"}
+            },
+            {
+                "id": "2",
+                "type": "dialogue",
+                "character": characters[1] if len(characters) > 1 else "Listener",
+                "text": "That's interesting! Tell me more.",
+                "emotion": "curious",
+                "traits": {"gender": "neutral", "age": "adult", "style": "conversational"}
+            }
+        ]
+    
+    def _create_fallback_actions(self, scene_plan: Dict) -> List[Dict]:
+        """Create fallback actions when AI parsing fails"""
+        return [
+            {"id": "action_1", "type": "action", "description": f"Scene opens in {scene_plan.get('setting', 'a location')}"},
+            {"id": "action_2", "type": "action", "description": "Characters begin their interaction"},
+            {"id": "action_3", "type": "action", "description": f"The atmosphere is {scene_plan.get('tone', 'neutral')}"}
         ]

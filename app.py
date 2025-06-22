@@ -13,8 +13,9 @@ from agents.script_generator import ScriptGenerator
 from agents.voice_generator import VoiceGenerator
 from agents.scene_renderer import SceneRenderer
 
+
 # Load environment variables
-load_dotenv()
+load_dotenv('.env')
 
 app = Flask(__name__)
 CORS(app)
