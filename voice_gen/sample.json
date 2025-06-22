@@ -14,64 +14,68 @@
       "when": "before",
       "delay": "immediate"
     },
-    "description": "The camera slowly pans across the grassy field, establishing the open space and the scattered trees. Sunlight filters through the leaves, creating dappled patterns on the ground.",
+    "description": "Rain streaks down the grimy windows of the warehouse, reflecting the weak light from a single bare bulb hanging precariously from the ceiling. Water drips steadily from the roof, creating a rhythmic, unsettling sound.",
     "character": null,
     "duration": {
       "length": "normal",
-      "seconds": 4
+      "seconds": 3
     },
     "visual_elements": {
-      "focus": "establishing the setting",
-      "movement_type": "pan",
-      "direction": "horizontal",
-      "intensity": "moderate",
-      "style": "smooth"
+      "focus": "establishing oppressive atmosphere",
+      "movement_type": "lighting_effect",
+      "direction": "overhead",
+      "intensity": "dramatic",
+      "style": "decayed"
     },
     "environmental_impact": {
       "lighting_change": "subtle",
       "background_elements": [
-        "grass",
-        "trees",
-        "sky"
+        "rain",
+        "windows",
+        "ceiling",
+        "bulb"
       ],
-      "atmosphere_shift": "peaceful",
+      "atmosphere_shift": "tension_increase",
       "sound_implications": [
-        "gentle breeze"
+        "drip_sound",
+        "distant_thunder"
       ]
     },
-    "emotional_purpose": "set the scene and establish a calm mood",
+    "emotional_purpose": "establish a sense of unease and isolation",
     "camera_suggestion": {
       "shot_type": "establishing",
-      "angle": "eye_level",
-      "movement": "pan"
+      "angle": "high",
+      "movement": "slow_pan"
     }
   },
   {
     "id": "dialogue_1",
     "type": "dialogue",
     "character": "Character A",
-    "text": "It'sâ€¦ surprisingly quiet here.",
-    "emotion": "observant",
+    "text": "I still don't understand why you brought me here. This place gives me the creeps.",
+    "emotion": "unease",
     "traits": {
       "gender": "female",
       "age_range": "young_adult",
-      "voice_style": "casual",
+      "voice_style": "cautious",
       "accent": "neutral",
-      "speech_pattern": "relaxed",
-      "elevenlabs_voice_id": "6tCO5nKvkGxCIWBd2gqE"
+      "speech_pattern": "slightly hesitant",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
     },
     "timing": {
       "pace": "normal",
-      "pause_before": "none",
-      "pause_after": "brief",
-      "emphasis": [],
-      "volume": "normal"
+      "pause_before": "brief",
+      "pause_after": "none",
+      "emphasis": [
+        "here"
+      ],
+      "volume": "quiet"
     },
     "context": {
       "responds_to": "scene_opening",
-      "triggers": "establishing the setting and initial mood",
-      "subtext": "a subtle observation, possibly masking deeper thoughts",
-      "relationship_dynamic": "initial neutral interaction"
+      "triggers": "establishing character's initial reaction",
+      "subtext": "expressing apprehension and distrust",
+      "relationship_dynamic": "initial tension"
     },
     "audio": "audio/Character A_dialogue_1.mp3"
   },
@@ -79,30 +83,31 @@
     "id": "dialogue_2",
     "type": "dialogue",
     "character": "Character B",
-    "text": "Yeah. You'd think with all the people around, there'd be more noise.",
-    "emotion": "slightly_disappointed",
+    "text": "Don't play coy. We both know you were involved. Just tell me what happened.",
+    "emotion": "firm_determination",
     "traits": {
       "gender": "male",
-      "age_range": "young_adult",
-      "voice_style": "casual",
+      "age_range": "adult",
+      "voice_style": "direct",
       "accent": "neutral",
-      "speech_pattern": "conversational",
-      "elevenlabs_voice_id": "xvtUt0bfN50mhAb1ugS6"
+      "speech_pattern": "confident",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
     },
     "timing": {
       "pace": "normal",
-      "pause_before": "brief",
-      "pause_after": "none",
+      "pause_before": "none",
+      "pause_after": "brief",
       "emphasis": [
-        "more noise"
+        "involved",
+        "what happened"
       ],
       "volume": "normal"
     },
     "context": {
       "responds_to": "dialogue_1",
-      "triggers": "character B's reaction to the quiet environment",
-      "subtext": "a minor complaint, potentially indicating a desire for activity",
-      "relationship_dynamic": "establishing a baseline for interaction"
+      "triggers": "direct accusation, escalating conflict",
+      "subtext": "seeking information, asserting control",
+      "relationship_dynamic": "power dynamic shift"
     },
     "audio": "audio/Character B_dialogue_2.mp3"
   },
@@ -113,33 +118,35 @@
       "sequence": 2,
       "relative_to": "dialogue_1",
       "when": "during",
-      "delay": "brief"
+      "delay": "immediate"
     },
-    "description": "Character A sits down slowly on the grass, a slight sigh escaping their lips as they look around.",
+    "description": "Character A (Detective) slowly enters the warehouse, head down, scanning the room with a wary expression.  Her footsteps echo slightly on the concrete floor.",
     "character": "Character A",
     "duration": {
       "length": "normal",
-      "seconds": 3
+      "seconds": 4
     },
     "visual_elements": {
-      "focus": "Character A's relaxed posture",
-      "movement_type": "sitting",
-      "direction": "down",
-      "intensity": "subtle",
-      "style": "relaxed"
+      "focus": "detective's cautious approach",
+      "movement_type": "walking",
+      "direction": "toward",
+      "intensity": "moderate",
+      "style": "nervous"
     },
     "environmental_impact": {
       "lighting_change": "none",
       "background_elements": [
-        "grass",
-        "trees"
+        "shadows",
+        "dust",
+        "debris"
       ],
       "atmosphere_shift": "none",
       "sound_implications": [
-        "gentle breeze"
+        "footsteps",
+        "distant_rain"
       ]
     },
-    "emotional_purpose": "reflects Character A's observation and a desire for quiet",
+    "emotional_purpose": "reflecting apprehension and uncertainty",
     "camera_suggestion": {
       "shot_type": "medium",
       "angle": "eye_level",
@@ -150,30 +157,31 @@
     "id": "dialogue_3",
     "type": "dialogue",
     "character": "Character A",
-    "text": "Maybe it's a good thing. A little peace and quiet is nice.",
-    "emotion": "content",
+    "text": "I told you, I was at home. Alone. It's not a secret.",
+    "emotion": "defensive",
     "traits": {
       "gender": "female",
       "age_range": "young_adult",
-      "voice_style": "calm",
+      "voice_style": "firm",
       "accent": "neutral",
-      "speech_pattern": "measured",
-      "elevenlabs_voice_id": "6tCO5nKvkGxCIWBd2gqE"
+      "speech_pattern": "slightly agitated",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
     },
     "timing": {
       "pace": "normal",
       "pause_before": "brief",
       "pause_after": "none",
       "emphasis": [
-        "peace and quiet"
+        "told",
+        "alone"
       ],
       "volume": "normal"
     },
     "context": {
       "responds_to": "dialogue_2",
-      "triggers": "Character A's agreement with the quiet, potentially hinting at a preference",
-      "subtext": "a subtle shift in mood, suggesting a desire for relaxation",
-      "relationship_dynamic": "beginning to reveal differing preferences"
+      "triggers": "denial, escalating conflict",
+      "subtext": "attempting to deflect suspicion",
+      "relationship_dynamic": "increasing hostility"
     },
     "audio": "audio/Character A_dialogue_3.mp3"
   },
@@ -181,101 +189,99 @@
     "id": "dialogue_4",
     "type": "dialogue",
     "character": "Character B",
-    "text": "I don't know. I was hoping toâ€¦ do something. You know? Justâ€¦ something.",
-    "emotion": "restless",
+    "text": "Don't insult my intelligence. The security footage doesn't lie. You were here.",
+    "emotion": "disbelief",
     "traits": {
       "gender": "male",
-      "age_range": "young_adult",
-      "voice_style": "slightly_hesitant",
+      "age_range": "adult",
+      "voice_style": "cold",
       "accent": "neutral",
-      "speech_pattern": "paced",
-      "elevenlabs_voice_id": "xvtUt0bfN50mhAb1ugS6"
+      "speech_pattern": "measured",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
     },
     "timing": {
       "pace": "normal",
-      "pause_before": "long",
-      "pause_after": "brief",
+      "pause_before": "brief",
+      "pause_after": "long",
       "emphasis": [
-        "something"
+        "security footage",
+        "here"
       ],
       "volume": "normal"
     },
     "context": {
       "responds_to": "dialogue_3",
-      "triggers": "Character B's unspoken desire for activity",
-      "subtext": "a hint of dissatisfaction, possibly masking a deeper need",
-      "relationship_dynamic": "revealing a difference in desires"
+      "triggers": "presenting irrefutable evidence",
+      "subtext": "undermining character's denial, asserting dominance",
+      "relationship_dynamic": "power imbalance reinforced"
     },
     "audio": "audio/Character B_dialogue_4.mp3"
   },
   {
     "id": "action_3",
-    "type": "movement",
+    "type": "gesture",
     "timing": {
       "sequence": 3,
-      "relative_to": "dialogue_2",
+      "relative_to": "dialogue_1",
       "when": "during",
       "delay": "brief"
     },
-    "description": "Character B shifts uncomfortably in their place, glancing around the field with a slightly restless expression.",
-    "character": "Character B",
+    "description": "Character A subtly clutches her jacket, a nervous habit.",
+    "character": "Character A",
     "duration": {
-      "length": "normal",
-      "seconds": 4
+      "length": "brief",
+      "seconds": 1
     },
     "visual_elements": {
-      "focus": "Character B's restless body language",
-      "movement_type": "shifting",
-      "direction": "multiple",
+      "focus": "nervousness",
+      "movement_type": "gesture",
+      "direction": "internal",
       "intensity": "subtle",
-      "style": "nervous"
+      "style": "anxious"
     },
     "environmental_impact": {
       "lighting_change": "none",
       "background_elements": [
-        "grass",
-        "trees"
+        "jacket"
       ],
       "atmosphere_shift": "none",
-      "sound_implications": [
-        "rustling of clothing"
-      ]
+      "sound_implications": "none"
     },
-    "emotional_purpose": "shows Character B's discomfort and desire for activity",
+    "emotional_purpose": "reinforce character's unease",
     "camera_suggestion": {
-      "shot_type": "medium",
-      "angle": "eye_level",
-      "movement": "follow"
+      "shot_type": "close_up",
+      "angle": "slightly_high",
+      "movement": "static"
     }
   },
   {
     "id": "dialogue_5",
     "type": "dialogue",
     "character": "Character A",
-    "text": "Like what?  We could justâ€¦ sit here.",
-    "emotion": "patient",
+    "text": "That... that was weeks ago. It doesn't matter anymore.",
+    "emotion": "desperation",
     "traits": {
       "gender": "female",
       "age_range": "young_adult",
-      "voice_style": "gentle",
+      "voice_style": "weak",
       "accent": "neutral",
-      "speech_pattern": "soft",
-      "elevenlabs_voice_id": "6tCO5nKvkGxCIWBd2gqE"
+      "speech_pattern": "hesitant",
+      "elevenlabs_voice_id": "mdktqLhdJWJ0z3jKsRxZ"
     },
     "timing": {
-      "pace": "normal",
-      "pause_before": "none",
+      "pace": "slow",
+      "pause_before": "long",
       "pause_after": "brief",
       "emphasis": [
-        "sit here"
+        "matter"
       ],
-      "volume": "normal"
+      "volume": "whisper"
     },
     "context": {
       "responds_to": "dialogue_4",
-      "triggers": "Character A's offer of a simple activity",
-      "subtext": "a gentle attempt to alleviate Character B's restlessness",
-      "relationship_dynamic": "attempting to bridge the gap in desires"
+      "triggers": "attempting to minimize involvement",
+      "subtext": "revealing a possible attempt to cover up the past",
+      "relationship_dynamic": "vulnerability exposed"
     },
     "audio": "audio/Character A_dialogue_5.mp3"
   },
@@ -283,90 +289,51 @@
     "id": "dialogue_6",
     "type": "dialogue",
     "character": "Character B",
-    "text": "I don't know. I justâ€¦ I feel like I should be *doing* something.",
-    "emotion": "frustrated",
+    "text": "It does matter. Every detail. And I intend to hear them.",
+    "emotion": "intense_focus",
     "traits": {
       "gender": "male",
-      "age_range": "young_adult",
-      "voice_style": "slightly_agitated",
+      "age_range": "adult",
+      "voice_style": "authoritative",
       "accent": "neutral",
-      "speech_pattern": "quick",
-      "elevenlabs_voice_id": "xvtUt0bfN50mhAb1ugS6"
+      "speech_pattern": "firm",
+      "elevenlabs_voice_id": "rKoQVmw1ldu30jxBdE8p"
     },
     "timing": {
-      "pace": "fast",
+      "pace": "normal",
       "pause_before": "none",
-      "pause_after": "brief",
+      "pause_after": "none",
       "emphasis": [
-        "should be",
-        "doing"
+        "detail",
+        "hear"
       ],
       "volume": "normal"
     },
     "context": {
       "responds_to": "dialogue_5",
-      "triggers": "Character B's growing frustration",
-      "subtext": "expressing a feeling of restlessness and a need for purpose",
-      "relationship_dynamic": "heightening the tension between their differing desires"
+      "triggers": "determination to uncover the truth",
+      "subtext": "threat of further interrogation, increasing pressure",
+      "relationship_dynamic": "escalating conflict, no resolution in sight"
     },
     "audio": "audio/Character B_dialogue_6.mp3"
   },
   {
     "id": "action_4",
-    "type": "gesture",
+    "type": "movement",
     "timing": {
       "sequence": 4,
-      "relative_to": "dialogue_3",
+      "relative_to": "dialogue_2",
       "when": "during",
       "delay": "immediate"
     },
-    "description": "Character A gestures vaguely towards the distance with a hand, a small, thoughtful smile playing on their lips.",
-    "character": "Character A",
-    "duration": {
-      "length": "brief",
-      "seconds": 2
-    },
-    "visual_elements": {
-      "focus": "Character A's gesture and expression",
-      "movement_type": "gesturing",
-      "direction": "toward",
-      "intensity": "subtle",
-      "style": "calm"
-    },
-    "environmental_impact": {
-      "lighting_change": "none",
-      "background_elements": [
-        "trees"
-      ],
-      "atmosphere_shift": "none",
-      "sound_implications": [
-        "subtle hand movement"
-      ]
-    },
-    "emotional_purpose": "expresses a quiet acceptance of the situation",
-    "camera_suggestion": {
-      "shot_type": "medium",
-      "angle": "eye_level",
-      "movement": "static"
-    }
-  },
-  {
-    "id": "action_5",
-    "type": "movement",
-    "timing": {
-      "sequence": 5,
-      "relative_to": "dialogue_4",
-      "when": "during",
-      "delay": "brief"
-    },
-    "description": "Character B fidgets with their hands, their gaze darting around the field with a hint of frustration.",
+    "description": "Character B (Suspect) shifts uncomfortably in his chair, avoiding eye contact. He fidgets with his hands.",
     "character": "Character B",
     "duration": {
       "length": "normal",
       "seconds": 3
     },
     "visual_elements": {
-      "focus": "Character B's agitated movements",
+      "focus": "defensive body language",
       "movement_type": "shifting",
       "direction": "multiple",
       "intensity": "moderate",
@@ -375,15 +342,15 @@
     "environmental_impact": {
       "lighting_change": "none",
       "background_elements": [
-        "grass",
-        "trees"
+        "chair",
+        "table"
       ],
       "atmosphere_shift": "none",
       "sound_implications": [
-        "rustling of clothing"
+        "fidgeting_sounds"
       ]
     },
-    "emotional_purpose": "visually represents Character B's restlessness and unspoken desire",
+    "emotional_purpose": "show nervousness and discomfort",
     "camera_suggestion": {
       "shot_type": "medium",
       "angle": "eye_level",
@@ -391,42 +358,83 @@
     }
   },
   {
-    "id": "action_6",
+    "id": "action_5",
     "type": "visual_effect",
     "timing": {
+      "sequence": 5,
+      "relative_to": "dialogue_3",
+      "when": "during",
+      "delay": "brief"
+    },
+    "description": "A brief, distorted flash of light momentarily illuminates the room, highlighting the grime and decay.",
+    "character": null,
+    "duration": {
+      "length": "brief",
+      "seconds": 1
+    },
+    "visual_elements": {
+      "focus": "emphasizing the unsettling environment",
+      "movement_type": "visual_effect",
+      "direction": "overhead",
+      "intensity": "dramatic",
+      "style": "distorted"
+    },
+    "environmental_impact": {
+      "lighting_change": "dramatic",
+      "background_elements": [
+        "shadows",
+        "dust"
+      ],
+      "atmosphere_shift": "tension_increase",
+      "sound_implications": "none"
+    },
+    "emotional_purpose": "amplify the sense of unease and mystery",
+    "camera_suggestion": {
+      "shot_type": "medium",
+      "angle": "eye_level",
+      "movement": "static"
+    }
+  },
+  {
+    "id": "action_6",
+    "type": "environment",
+    "timing": {
       "sequence": 6,
-      "relative_to": "dialogue_5",
+      "relative_to": "dialogue_4",
       "when": "during",
       "delay": "extended"
     },
-    "description": "A subtle zoom in on Character B's face as they speak, emphasizing their frustration and a sense of being trapped.",
+    "description": "The sound of rain intensifies, accompanied by a low rumble of thunder.  A single drop of water lands on the table, creating a small ripple.",
     "character": null,
     "duration": {
-      "length": "extended",
-      "seconds": 5
+      "length": "normal",
+      "seconds": 4
     },
     "visual_elements": {
-      "focus": "Character B's emotional state",
-      "movement_type": "camera_movement",
-      "direction": "inward",
-      "intensity": "subtle",
-      "style": "methodical"
+      "focus": "heightening the atmosphere",
+      "movement_type": "environmental_sound",
+      "direction": "ambient",
+      "intensity": "moderate",
+      "style": "realistic"
     },
     "environmental_impact": {
       "lighting_change": "none",
       "background_elements": [
-        "blur_background"
+        "rain",
+        "table",
+        "water_drop"
       ],
       "atmosphere_shift": "tension_increase",
       "sound_implications": [
-        "ambient_silence"
+        "thunder",
+        "rain_sound"
       ]
     },
-    "emotional_purpose": "amplify the feeling of frustration and confinement",
+    "emotional_purpose": "build suspense and create a sense of foreboding",
     "camera_suggestion": {
-      "shot_type": "close_up",
+      "shot_type": "medium",
       "angle": "eye_level",
-      "movement": "slow_zoom"
+      "movement": "static"
     }
   }
 ]

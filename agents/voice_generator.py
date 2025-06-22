@@ -2,200 +2,261 @@ import os
 import json
 import logging
 import requests
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import base64
 import hashlib
+
+# Try to import ElevenLabs
+try:
+    from elevenlabs.client import ElevenLabs
+    ELEVENLABS_AVAILABLE = True
+except ImportError:
+    ELEVENLABS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
 class VoiceGenerator:
-    """Voice generation agent using Vapi API"""
+    """Voice generation agent using ElevenLabs API"""
     
     def __init__(self):
+        # Initialize ElevenLabs client if available
+        self.elevenlabs_client = None
+        self.elevenlabs_key = None
+        if ELEVENLABS_AVAILABLE:
+            self.elevenlabs_key = os.getenv('ELEVENLABS_API_KEY')
+            if self.elevenlabs_key and self.elevenlabs_key != 'your_elevenlabs_api_key_here':
+                try:
+                    self.elevenlabs_client = ElevenLabs(api_key=self.elevenlabs_key)
+                    logger.info("ElevenLabs client initialized successfully")
+                except Exception as e:
+                    logger.error(f"Failed to initialize ElevenLabs client: {str(e)}")
+            else:
+                logger.warning("ELEVENLABS_API_KEY not configured")
+        else:
+            logger.warning("ElevenLabs library not available")
+        
+        # Vapi fallback
         self.vapi_api_key = os.getenv('VAPI_API_KEY')
         self.base_url = "https://api.vapi.ai"
+          # Caching
         self.audio_cache = {}  # Cache for generated audio files
+        self.voice_cache = {}  # Cache for created voices (character -> voice_id)
         
-        if not self.vapi_api_key or self.vapi_api_key == 'your_vapi_api_key_here':
-            logger.warning("Vapi API key not configured, voice generation will be simulated")
-            self.vapi_api_key = None
-    
-    def generate_voices(self, script: List[Dict]) -> Dict[str, str]:
+        if not self.elevenlabs_client and not self.vapi_api_key:
+            logger.warning("No voice APIs configured, voice generation will be simulated")
+
+    def generate_voices(self, script: List[Dict], project_dir: Optional[str] = None) -> Dict[str, str]:
         """
         Generate voice audio for all dialogue blocks in the script
         Returns a dictionary mapping dialogue IDs to audio file paths/URLs
+        Does NOT modify the script data
         """
         audio_files = {}
+        character_voice_map: Dict[str, str] = {}  # Local mapping for this generation session
         
         try:
             for block in script:
-                if block.get("type") == "dialogue":
-                    block_id = block.get("id")
-                    character = block.get("character", "Unknown")
-                    text = block.get("text", "")
-                    traits = block.get("traits", {})
-                    emotion = block.get("emotion", "neutral")
-                    
-                    if text.strip():
-                        logger.info(f"Generating voice for block {block_id}: {character}")
-                        
-                        # Generate audio for this dialogue block
-                        audio_file = self._generate_single_voice(
-                            text=text,
-                            character=character,
-                            traits=traits,
-                            emotion=emotion,
-                            block_id=block_id
-                        )
-                        
-                        if audio_file:
-                            audio_files[block_id] = audio_file
-                        
+                if block.get("type") != "dialogue":
+                    continue
+                
+                block_id = block.get("id", "unknown")
+                character = block.get("character", "Unknown")
+                text = block.get("text", "")
+                traits = block.get("traits", {})
+                emotion = block.get("emotion", "neutral")
+                
+                if not text.strip():
+                    continue
+                
+                logger.info(f"Generating voice for block {block_id}: {character}")
+                
+                # Determine output directory
+                if project_dir:
+                    audio_dir = os.path.join(project_dir, "audio")
+                else:
+                    audio_dir = "audio"
+                os.makedirs(audio_dir, exist_ok=True)
+                
+                # Check if audio already exists
+                audio_path = os.path.join(audio_dir, f"{character}_{block_id}.mp3")
+                if os.path.exists(audio_path):
+                    audio_files[block_id] = audio_path
+                    logger.info(f"Audio already exists: {audio_path}")
+                    continue
+                
+                # Get or create voice for this character
+                voice_id = self._get_or_create_voice_for_character(
+                    character, traits, emotion, character_voice_map
+                )
+                
+                if voice_id:
+                    # Generate audio
+                    generated_audio = self._generate_audio_with_elevenlabs(
+                        text, voice_id, audio_path
+                    )
+                    if generated_audio:
+                        audio_files[block_id] = generated_audio
+                else:
+                    # Fallback to simulation
+                    simulated_audio = self._simulate_voice_generation(
+                        text, character, block_id, audio_dir
+                    )
+                    audio_files[block_id] = simulated_audio                        
             return audio_files
             
         except Exception as e:
             logger.error(f"Error in voice generation: {str(e)}")
             return {}
-    
-    def _generate_single_voice(self, text: str, character: str, traits: Dict, emotion: str, block_id: str) -> str:
-        """Generate voice audio for a single dialogue block"""
+
+    def _get_or_create_voice_for_character(self, character: str, traits: Dict, emotion: str, character_voice_map: Dict) -> Optional[str]:
+        """Get or create voice for a character using ElevenLabs"""
+        
+        # Check if we already have a voice for this character in this session
+        if character in character_voice_map:
+            return character_voice_map[character]
+        
+        # Check if traits already include a voice_id
+        voice_id = traits.get("elevenlabs_voice_id")
+        if voice_id:
+            character_voice_map[character] = voice_id
+            return voice_id
+        
+        # Check global voice cache
+        if character in self.voice_cache:
+            voice_id = self.voice_cache[character]
+            character_voice_map[character] = voice_id
+            return voice_id
+        
+        if not self.elevenlabs_client:
+            logger.warning(f"ElevenLabs client not available for character: {character}")
+            return self._get_fallback_voice_id(traits)
         
         try:
-            # Create a cache key based on content
-            cache_key = hashlib.md5(f"{text}_{character}_{json.dumps(traits)}_{emotion}".encode()).hexdigest()
+            # Build voice description from traits and emotion
+            description = self._build_voice_description(traits, emotion)
             
-            # Check cache first
-            if cache_key in self.audio_cache:
-                logger.info(f"Using cached audio for block {block_id}")
-                return self.audio_cache[cache_key]
+            # Create voice from description
+            voice_id = self._create_voice_from_description(description, character)
             
-            if not self.vapi_api_key:
-                # Simulate voice generation
-                return self._simulate_voice_generation(text, character, block_id)
-            
-            # Determine voice characteristics from traits
-            voice_config = self._get_voice_config(traits, emotion)
-            
-            # Make API call to Vapi
-            audio_file = self._call_vapi_api(text, voice_config, block_id)
-            
-            # Cache the result
-            if audio_file:
-                self.audio_cache[cache_key] = audio_file
-            
-            return audio_file
-            
+            if voice_id:
+                self.voice_cache[character] = voice_id
+                character_voice_map[character] = voice_id
+                return voice_id
+            else:
+                return self._get_fallback_voice_id(traits)
+                
         except Exception as e:
-            logger.error(f"Error generating voice for block {block_id}: {str(e)}")
-            return self._simulate_voice_generation(text, character, block_id)
-    
-    def _get_voice_config(self, traits: Dict, emotion: str) -> Dict:
-        """Convert character traits and emotion to voice configuration"""
+            logger.error(f"Error creating voice for {character}: {str(e)}")
+            return self._get_fallback_voice_id(traits)
+
+    def _build_voice_description(self, traits: Dict, emotion: Optional[str] = None) -> str:
+        """Build voice description from character traits"""
+        parts = []
         
-        # Default voice config
-        voice_config = {
-            "model": "eleven_labs",
-            "stability": 0.5,
-            "similarity_boost": 0.75,
-            "style": 0.0,
-            "use_speaker_boost": True
-        }
+        if traits.get("age_range"):
+            parts.append(traits["age_range"])
+        if traits.get("gender"):
+            parts.append(traits["gender"])
+        if traits.get("voice_style"):
+            parts.append(traits["voice_style"])
+        if traits.get("accent"):
+            parts.append(f"{traits['accent']} accent")
+        if emotion and emotion != "neutral":
+            parts.append(f"{emotion} tone")
         
-        # Adjust based on traits
-        gender = traits.get("gender", "neutral").lower()
-        age = traits.get("age", "adult").lower()
-        style = traits.get("style", "friendly").lower()
+        if not parts:
+            parts = ["adult", "neutral", "clear"]
         
-        # Voice selection based on traits
-        if gender == "male":
-            if age in ["young", "child"]:
-                voice_config["voice_id"] = "pNInz6obpgDQGcFmaJgB"  # Adam - young male
-            elif age == "elderly":
-                voice_config["voice_id"] = "VR6AewLTigWG4xSOukaG"  # Arnold - older male
-            else:
-                voice_config["voice_id"] = "pNInz6obpgDQGcFmaJgB"  # Adam - default male
-        elif gender == "female":
-            if age in ["young", "child"]:
-                voice_config["voice_id"] = "EXAVITQu4vr4xnSDxMaL"  # Bella - young female
-            elif age == "elderly":
-                voice_config["voice_id"] = "MF3mGyEYCl7XYWbV9V6O"  # Elli - older female
-            else:
-                voice_config["voice_id"] = "21m00Tcm4TlvDq8ikWAM"  # Rachel - default female
-        else:
-            # Neutral/default voice
-            voice_config["voice_id"] = "21m00Tcm4TlvDq8ikWAM"  # Rachel
+        return "A " + ", ".join(parts) + " voice."
+
+    def _create_voice_from_description(self, description: str, name: str = "Unnamed") -> Optional[str]:
+        """Create voice from description using ElevenLabs"""
         
-        # Adjust style based on emotion
-        emotion_adjustments = {
-            "excited": {"stability": 0.3, "style": 0.2},
-            "sad": {"stability": 0.8, "style": -0.2},
-            "angry": {"stability": 0.2, "style": 0.4},
-            "calm": {"stability": 0.9, "style": -0.1},
-            "worried": {"stability": 0.4, "style": 0.1},
-            "happy": {"stability": 0.4, "style": 0.3},
-            "educational": {"stability": 0.7, "style": 0.0},
-            "neutral": {"stability": 0.5, "style": 0.0}
-        }
-        
-        if emotion in emotion_adjustments:
-            voice_config.update(emotion_adjustments[emotion])
-        
-        return voice_config
-    
-    def _call_vapi_api(self, text: str, voice_config: Dict, block_id: str) -> str:
-        """Make actual API call to Vapi for voice synthesis"""
-        
-        headers = {
-            "Authorization": f"Bearer {self.vapi_api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "text": text,
-            "voice_settings": voice_config,
-            "output_format": "mp3_44100_128"
-        }
-        
+        # Check if we already created this voice description
+        if description in self.voice_cache:
+            return self.voice_cache[description]
+
         try:
-            # This is a placeholder for the actual Vapi API endpoint
-            # You'll need to adjust this based on Vapi's actual API structure
-            response = requests.post(
-                f"{self.base_url}/v1/text-to-speech",
-                headers=headers,
-                json=payload,
-                timeout=30
+            logger.info(f"🎙️ Generating voice for: {description}")
+            
+            previews = self.elevenlabs_client.text_to_voice.create_previews(
+                voice_description=description,
+                text=(
+                    "This is a preview of my voice. I am the character you are designing. "
+                    "Listen closely to how I speak — this is how I will sound in the scene. "
+                    "My voice should reflect my personality, tone, and emotion clearly."
+                )
             )
             
-            if response.status_code == 200:
-                # Save audio file
-                audio_filename = f"audio/voice_{block_id}.mp3"
-                os.makedirs("audio", exist_ok=True)
-                
-                with open(audio_filename, "wb") as f:
-                    f.write(response.content)
-                
-                logger.info(f"Voice generated and saved: {audio_filename}")
-                return audio_filename
-            else:
-                logger.error(f"Vapi API error: {response.status_code} - {response.text}")
-                return self._simulate_voice_generation(text, "character", block_id)
-                
+            generated_voice_id = previews.previews[0].generated_voice_id
+
+            voice = self.elevenlabs_client.text_to_voice.create_voice_from_preview(
+                voice_name=name,
+                voice_description=description,
+                generated_voice_id=generated_voice_id
+            )
+
+            self.voice_cache[description] = voice.voice_id
+            logger.info(f"✅ Voice created: {voice.voice_id}")
+            return voice.voice_id
+
         except Exception as e:
-            logger.error(f"Error calling Vapi API: {str(e)}")
-            return self._simulate_voice_generation(text, "character", block_id)
-    
-    def _simulate_voice_generation(self, text: str, character: str, block_id: str) -> str:
-        """Simulate voice generation when API is not available"""
+            logger.error(f"❌ Error generating voice: {e}")
+            return None
+
+    def _generate_audio_with_elevenlabs(self, text: str, voice_id: str, output_path: str) -> Optional[str]:
+        """Generate audio using ElevenLabs API"""
         
-        # Create a placeholder audio file path
-        audio_filename = f"audio/simulated_voice_{block_id}.mp3"
+        if not self.elevenlabs_key:
+            logger.error("ElevenLabs API key not available")
+            return None
         
-        # Create audio directory if it doesn't exist
-        os.makedirs("audio", exist_ok=True)
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+        headers = {
+            "xi-api-key": self.elevenlabs_key,
+            "Content-Type": "application/json"
+        }
+        data = {
+            "text": text,
+            "model_id": "eleven_multilingual_v2",
+            "voice_settings": {
+                "stability": 0.5,
+                "similarity_boost": 0.75
+            }
+        }
+
+        try:
+            response = requests.post(url, headers=headers, json=data, timeout=30)
+            if response.status_code != 200:
+                logger.error(f"❌ Error generating audio: {response.status_code} {response.text}")
+                return None
+
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "wb") as f:
+                f.write(response.content)
+
+            logger.info(f"🔊 Audio saved to: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Error generating audio with ElevenLabs: {str(e)}")
+            return None
+
+    def _get_fallback_voice_id(self, traits: Dict) -> str:
+        """Get a default ElevenLabs voice ID based on traits"""
+        default_voices = {
+            "male": "pNInz6obpgDQGcFmaJgB",  # Adam
+            "female": "21m00Tcm4TlvDq8ikWAM",  # Rachel
+            "neutral": "21m00Tcm4TlvDq8ikWAM"  # Rachel
+        }
+        gender = traits.get("gender", "neutral").lower()
+        return default_voices.get(gender, default_voices["neutral"])
+
+    def _simulate_voice_generation(self, text: str, character: str, block_id: str, audio_dir: str) -> str:
+        """Simulate voice generation when APIs are not available"""
         
-        # For now, just create a text file with the dialogue
-        # In a real implementation, you might use a local TTS library
-        text_filename = f"audio/dialogue_{block_id}.txt"
+        # Create a placeholder text file with the dialogue
+        text_filename = os.path.join(audio_dir, f"dialogue_{character}_{block_id}.txt")
         with open(text_filename, "w", encoding="utf-8") as f:
             f.write(f"Character: {character}\n")
             f.write(f"Text: {text}\n")
@@ -220,15 +281,13 @@ class VoiceGenerator:
                             # Estimate duration: ~150 words per minute + some padding
                             duration = (word_count / 150) * 60 + 1.0
                             return max(duration, 2.0)  # Minimum 2 seconds
-            
-            # Default duration for unknown files
-            return 3.0
+              # Default duration for unknown files            return 3.0
             
         except Exception as e:
             logger.error(f"Error getting audio duration: {str(e)}")
             return 3.0  # Default duration
-    
-    def regenerate_voice(self, block_id: str, script_block: Dict) -> str:
+
+    def regenerate_voice(self, block_id: str, script_block: Dict, project_dir: Optional[str] = None) -> Optional[str]:
         """Regenerate voice for a specific dialogue block"""
         
         character = script_block.get("character", "Unknown")
@@ -236,10 +295,45 @@ class VoiceGenerator:
         traits = script_block.get("traits", {})
         emotion = script_block.get("emotion", "neutral")
         
-        # Clear cache for this block
-        cache_key = hashlib.md5(f"{text}_{character}_{json.dumps(traits)}_{emotion}".encode()).hexdigest()
-        if cache_key in self.audio_cache:
-            del self.audio_cache[cache_key]
+        # Clear cache for this character
+        if character in self.voice_cache:
+            del self.voice_cache[character]
         
-        # Generate new voice
-        return self._generate_single_voice(text, character, traits, emotion, block_id)
+        # Determine output directory
+        if project_dir:
+            audio_dir = os.path.join(project_dir, "audio")
+        else:
+            audio_dir = "audio"
+        os.makedirs(audio_dir, exist_ok=True)
+        
+        # Create new voice and generate audio
+        character_voice_map: Dict[str, str] = {}
+        voice_id = self._get_or_create_voice_for_character(
+            character, traits, emotion, character_voice_map
+        )
+        
+        if voice_id:
+            audio_path = os.path.join(audio_dir, f"{character}_{block_id}.mp3")
+            return self._generate_audio_with_elevenlabs(text, voice_id, audio_path)
+        else:
+            return self._simulate_voice_generation(text, character, block_id, audio_dir)
+
+    def delete_all_custom_voices(self):
+        """Delete all custom voices from ElevenLabs (cleanup utility)"""
+        if not self.elevenlabs_client:
+            logger.warning("ElevenLabs client not available")
+            return
+        
+        try:
+            voices = self.elevenlabs_client.voices.get_all()
+            for voice in voices.voices:
+                if voice.category != "premade":  # only delete custom voices
+                    logger.info(f"🗑️ Deleting voice: {voice.name} ({voice.voice_id})")
+                    self.elevenlabs_client.voices.delete(voice_id=voice.voice_id)
+            
+            # Clear voice cache
+            self.voice_cache.clear()
+            logger.info("All custom voices deleted")
+            
+        except Exception as e:
+            logger.error(f"Error deleting custom voices: {str(e)}")

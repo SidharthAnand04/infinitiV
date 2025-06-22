@@ -4,3 +4,39 @@ voice_gen/audio/*
 frontend/node_modules/*
 .env
 .*
+__pycache__/*
+
+# Ignore Python cache files
+__pycache__/
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# Ignore Python virtual environments
+venv/
+# Ignore logs
+logs/
+# Ignore coverage reports
+coverage.xml
+
+
+# Ignore build directories
+build/          
+# Ignore distribution directories
+dist/
+# Ignore Python bytecode files
+*.pyc
+# Ignore Python egg files
+*.egg   
+# Ignore Python egg-info directories
+*.egg-info/
+# Ignore pipenv files
+
+Pipfile.lock
+# Ignore Poetry files                       
+
+
+
+
+
+
+
+                            
