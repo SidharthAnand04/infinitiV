@@ -19,14 +19,14 @@ class SceneRenderer:
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.project_dir, exist_ok=True)
 
-    def render_scene(self, script: Union[Dict, List[Dict]], audio_files: Dict[str, str], project_dir: str = None) -> Dict[str, Any]:
+    def render_scene(self, script: Union[Dict, List[Dict]], audio_files: Dict[str, str], project_dir: str = None, extra_images: list = None) -> Dict[str, Any]:
         """
         Render the scene using Ren'Py engine
         Returns information about the rendered scene
         """
         try:
             logger.info("Starting scene rendering with Ren'Py")
-              # Normalize script format
+            # Normalize script format
             if isinstance(script, dict):
                 script_blocks = script.get('blocks', [])
                 script_dict = script
@@ -46,14 +46,14 @@ class SceneRenderer:
             # Create Ren'Py project structure
             self._create_renpy_project(project_path, script_blocks, audio_files)
             
-            # Generate Ren'Py script
-            renpy_script = self._generate_renpy_script(script_blocks, audio_files)
+            # Generate Ren'Py script (pass extra_images)
+            renpy_script = self._generate_renpy_script(script_blocks, audio_files, extra_images=extra_images)
             
             # Write script file
             script_file = os.path.join(project_path, "game", "script.rpy")
             with open(script_file, "w", encoding="utf-8") as f:
                 f.write(renpy_script)
-              # Try to build/export the scene
+            # Try to build/export the scene
             scene_output = self._build_scene(project_path, project_name)
             
             return {
@@ -228,51 +228,37 @@ define gui.interface_text_size = 22
                 f.write("This is a placeholder. Replace with actual audio file for full functionality.\n")
     
     def _create_character_images(self, images_dir: str, script: List[Dict]):
-        """Create placeholder character image files"""
-        characters = set()
-        emotions = set()
-          # Extract characters and emotions from script
-        for block in script:
-            if block.get("type") == "dialogue":
-                character = block.get("character", "")
-                emotion = block.get("emotion", "neutral")
-                if character and character != "narrator":
-                    characters.add(character)
-                    emotions.add(emotion)
-        
-        # Add default emotions
-        emotions.update(["neutral", "happy", "sad", "angry", "surprised", "concerned", "serious"])
-        
-        # Create placeholder images for each character and emotion
-        for character in characters:
-            char_name = character.lower().replace(" ", "_").replace("character_", "char_")
-            for emotion in emotions:
-                filename = f"{char_name}_{emotion}.png"
-                placeholder_file = os.path.join(images_dir, filename.replace('.png', '.txt'))
-                with open(placeholder_file, 'w') as f:
-                    f.write(f"Character image placeholder: {character} - {emotion}\n")
-                    f.write("Replace with actual character image for full functionality.\n")
-    
-    def _create_background_images(self, images_dir: str):
-        """Create placeholder background image files"""
-        backgrounds = {
-            "warehouse.jpg": "Dark warehouse background",
-            "dark_room.jpg": "Dark interrogation room background", 
-            "office.jpg": "Office background",
-            "street.jpg": "Street background"
-        }
-        
-        for filename, description in backgrounds.items():
+        """Create simple character image files"""
+        # Only create character_a.png and character_b.png
+        for char in ["character_a", "character_b"]:
+            filename = f"{char}.jpg"
             placeholder_file = os.path.join(images_dir, filename.replace('.jpg', '.txt'))
             with open(placeholder_file, 'w') as f:
-                f.write(f"Background placeholder: {description}\n")
-                f.write("Replace with actual background image for full functionality.\n")
+                f.write(f"Character image placeholder: {char}\n")
+                f.write("Replace with actual character image for full functionality.\n")
+
+    def _create_background_images(self, images_dir: str):
+        """Create simple background image file"""
+        filename = "background.jpg"
+        placeholder_file = os.path.join(images_dir, filename.replace('.jpg', '.txt'))
+        with open(placeholder_file, 'w') as f:
+            f.write("Background placeholder: background\n")
+            f.write("Replace with actual background image for full functionality.\n")
     
-    def _generate_renpy_script(self, script: List[Dict], audio_files: Dict[str, str]) -> str:
-        """Generate the Ren'Py script content with full support for actions, dialogue, and sound effects"""
+    def _generate_renpy_script(self, script: List[Dict], audio_files: Dict[str, str], extra_images: list = None) -> str:
+        """Generate the Ren'Py script content with full support for actions, dialogue, and sound effects, and extra images"""
         
-        renpy_script = '''# ∞-V Generated Scene Script
-# This script was automatically generated by Infiniti-V
+        renpy_script = '# ∞-V Generated Scene Script\n# This script was automatically generated by Infiniti-V\n\n'
+        # Add extra image definitions if provided
+        if extra_images:
+            for idx, img_path in enumerate(extra_images, 1):
+                renpy_script += f'image extra_{idx} = "{img_path}"\n'
+        # Use simple image names
+        renpy_script += '''
+# Simple image definitions
+image character_a = "images/character_a.png"
+image character_b = "images/character_b.png"
+image background = "images/background.jpg"
 
 # Define transforms for character movement and positioning
 transform left_enter:
