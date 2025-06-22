@@ -4,6 +4,9 @@ import pprint
 import logging
 from typing import List, Dict, Optional
 from datetime import datetime
+from prompts.script_generator_prompts import (
+    INTERPRET_PROMPT_SYSTEM,
+)
 
 # Try to import AI libraries
 try:
@@ -132,19 +135,7 @@ class ScriptGenerator:
         """Interpret the user prompt and create a scene plan"""
         
         if self.groq_client or self.gemini_model:
-            system_prompt = """
-            You are a prompt interpretation agent. Analyze the user's prompt and create a structured scene plan.
-            
-            Extract:
-            1. Setting/location
-            2. Characters involved
-            3. Main conflict or situation
-            4. Tone/mood
-            5. Key events that should happen
-            
-            Return as JSON with these keys: setting, characters, conflict, tone, events
-            DO NOT INCLUDE ANY NON JSON CONTENT. IT ONLY SHOULD SHOULD BE A JSON OBJECT.
-            """
+            system_prompt = INTERPRET_PROMPT_SYSTEM
             
             user_prompt = f"Prompt: {prompt}"
             if reference_materials:
@@ -168,7 +159,8 @@ class ScriptGenerator:
                     result = response.text
                 
                 try:
-                    pprint(result)
+                    # pprint.pprint(json.loads(result))  # Pretty print the JSON for debugging
+
                     return json.loads(result)
                 except:
                     # If JSON parsing fails, create a structured response
@@ -226,6 +218,8 @@ class ScriptGenerator:
                     response = self.gemini_model.generate_content(f"{system_prompt}\n\n{user_prompt}")
                     result = response.text
                 
+                pprint.pprint(result)  
+
                 try:
                     return json.loads(result)
                 except:
