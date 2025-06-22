@@ -26,6 +26,9 @@ class VoiceGenerator:
         # Initialize ElevenLabs client if available
         self.elevenlabs_client = None
         self.elevenlabs_key = None
+
+        print("Initializing VoiceGenerator...")
+        print(f"ELEVENLABS_AVAILABLE: {ELEVENLABS_AVAILABLE}"f"\nELEVENLABS_API_KEY: {os.getenv('ELEVENLABS_API_KEY', 'Not Set')}")
         if ELEVENLABS_AVAILABLE:
             self.elevenlabs_key = os.getenv('ELEVENLABS_API_KEY')
             if self.elevenlabs_key and self.elevenlabs_key != 'your_elevenlabs_api_key_here':

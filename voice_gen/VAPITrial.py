@@ -6,7 +6,7 @@ from elevenlabs.client import ElevenLabs
 
 # === Load API Key ===
 load_dotenv()
-ELEVENLABS_API_KEY = "sk_68a0d8efe2a675a3b100a4ec944bc8abc9bccd338cb5f3e1" 
+ELEVENLABS_API_KEY = "sk_50e5978b440c820bc5493da3e3c8a226992945eeb464d61f" 
 elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 SCRIPT_PATH = "sample.json"
 

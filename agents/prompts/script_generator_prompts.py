@@ -490,7 +490,7 @@ EXAMPLE OUTPUT FOR "Detective questions suspect in interrogation room":
 ]
 
 IMPORTANT CONSIDERATIONS:
-- Generate 4-8 dialogue exchanges minimum
+- Generate 4-8 dialogue exchanges minimum. chose a value at random so that it isn't always the same
 - Each character should speak multiple times
 - Show progression through the scene's emotional arc
 - End at a moment of tension, revelation, or natural pause
